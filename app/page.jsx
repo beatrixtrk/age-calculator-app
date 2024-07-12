@@ -16,6 +16,20 @@ export default function Home() {
 		year: false,
 	});
 
+	const isLeapYear = (year) => {
+		return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+	};
+
+	const getDaysInMonth = (month, year) => {
+		return month === 2
+			? isLeapYear(year)
+				? 29
+				: 28
+			: [4, 6, 9, 11].includes(month)
+			? 30
+			: 31;
+	};
+
 	const validateInputs = (day, month, year) => {
 		const today = new Date();
 		const birthDate = new Date(year, month - 1, day);
@@ -23,7 +37,7 @@ export default function Home() {
 		let valid = true;
 		const newErrors = { day: false, month: false, year: false };
 
-		if (!day || day < 1 || day > 31) {
+		if (!day || day < 1 || day > getDaysInMonth(month, year)) {
 			newErrors.day = true;
 			valid = false;
 		}
@@ -45,9 +59,9 @@ export default function Home() {
 	};
 
 	const calculateAge = () => {
-		const day = document.getElementById('day').value;
-		const month = document.getElementById('month').value;
-		const year = document.getElementById('year').value;
+		const day = parseInt(document.getElementById('day').value, 10);
+		const month = parseInt(document.getElementById('month').value, 10);
+		const year = parseInt(document.getElementById('year').value, 10);
 
 		const today = new Date();
 		const birthDate = new Date(year, month - 1, day);
@@ -58,13 +72,17 @@ export default function Home() {
 
 		let ageYears = today.getFullYear() - birthDate.getFullYear();
 		let ageMonths = today.getMonth() - birthDate.getMonth();
-		let ageDays = today.getDay() - birthDate.getDay();
+		let ageDays = today.getDate() - birthDate.getDate();
 
 		if (ageDays < 0) {
 			ageMonths--;
-			const tempDate = new Date(today.getFullYear(), today.getMonth(), 0);
+			const previousMonth = new Date(
+				today.getFullYear(),
+				today.getMonth(),
+				0
+			);
 			ageDays =
-				tempDate.getDate() - birthDate.getDate() + today.getDate();
+				previousMonth.getDate() - birthDate.getDate() + today.getDate();
 		}
 
 		if (ageMonths < 0) {
@@ -72,17 +90,12 @@ export default function Home() {
 			ageMonths += 12;
 		}
 
-		if (ageYears < 0) {
-			ageYears = 0;
-		}
-
-		console.log(today);
 		setAge({ years: ageYears, months: ageMonths, days: ageDays });
 	};
 
 	return (
-		<main className="flex min-h-screen flex-col items-center justify-between px-4 py-[88px] md:p-24">
-			<div className="bg-white max-h-[650px] max-w-[840px] h-full w-full px-6 py-12 md:p-14 rounded-3xl rounded-br-[100px] md:rounded-br-[200px]">
+		<main className="flex min-h-screen flex-col items-center justify-between px-4 py-[88px] lg:p-24">
+			<div className="bg-white max-w-[360px] md:max-w-[840px] h-full w-full px-6 py-12 md:p-14 rounded-3xl rounded-br-[100px] md:rounded-br-[200px]">
 				<div className="flex gap-4">
 					<Input
 						name="day"
@@ -109,10 +122,10 @@ export default function Home() {
 						error={errors.year}
 					/>
 				</div>
-				<div className="flex items-center py-8 md:py-0">
+				<div className="flex items-center py-14 md:py-4 relative">
 					<hr className="w-full border-line" />
 					<button
-						className="bg-purple rounded-full p-[20px] md:px-[24px] md:p-y-[22px] hover:bg-darkGrey"
+						className="bg-purple rounded-full p-[20px] md:px-[24px] md:p-y-[22px] hover:bg-darkGrey absolute left-1/2 -translate-x-1/2 md:relative md:left-auto md:translate-x-0"
 						onClick={calculateAge}
 						type="button"
 					>
